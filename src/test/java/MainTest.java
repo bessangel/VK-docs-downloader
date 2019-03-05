@@ -1,6 +1,4 @@
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matcher;
-import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mitalex.kurs.Config;
@@ -8,7 +6,6 @@ import org.mitalex.kurs.CryptoUtils;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -76,8 +73,16 @@ public class MainTest {
         String testEncryptedPassword = testConfig.getProperty(Config.ConfigKeys.PASSWORD);
         Assert.assertThat(testEncryptedPassword, CoreMatchers.startsWith("{aes}"));
         Assert.assertTrue("Ожидался шифрованый пароль, начинающийся на {aes}", testEncryptedPassword.startsWith("{aes}") );
-
     }
+
+
+    @Test
+    public void  testConfig() throws IOException, GeneralSecurityException {
+        Config config = new Config("config.properties");
+        String testEncryptedPassword = config.get(Config.ConfigKeys.PASSWORD);
+        Assert.assertThat(testEncryptedPassword, CoreMatchers.not(CoreMatchers.startsWith(Config.AES_PREFIX)));
+    }
+
 }
 
 

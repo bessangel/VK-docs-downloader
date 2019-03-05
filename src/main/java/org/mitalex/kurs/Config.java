@@ -16,6 +16,7 @@ import java.util.Properties;
 public class Config {
 
     private final String configFilePath;
+    public static final String AES_PREFIX = "{aes}";
 
     public interface ConfigKeys {
         public static final String GECKO_DRIVER = "gecko_driver";
@@ -41,6 +42,9 @@ public class Config {
 
     private Properties config = new Properties();
 
+    /**
+     * @param configPath 
+     */
     public Config(String configPath) {
         try {
             configFilePath = configPath;
@@ -52,27 +56,29 @@ public class Config {
                 value = cleanBadCharacters(value);
                 config.setProperty(key, value);
             }
-            doCrypt();
+            String password = config.getProperty(ConfigKeys.PASSWORD).trim();
+            doCryptConfig(ConfigKeys.PASSWORD , password);
+            String login = config.getProperty(ConfigKeys.LOGIN).trim();
+            doCryptConfig(ConfigKeys.LOGIN , login);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        LOG.info(config.toString());
-        System.out.println("ok");
+        LOG.info("Config file read Ok.");
     }
 
-    private void doCrypt() {
-        String password = config.getProperty(ConfigKeys.PASSWORD);
-        if (password.startsWith("{aes}")) {
-            password = CryptoUtils.decrypt(password, new File(ConfigKeys.SECRET_FILE));
-            config.setProperty(ConfigKeys.PASSWORD, password);
+    private void doCryptConfig(String key, String value) {
+        if (value.startsWith(AES_PREFIX)) {
+            String valueWithoutPrefix = value.substring(AES_PREFIX.length());
+            value = CryptoUtils.decrypt(valueWithoutPrefix, new File(ConfigKeys.SECRET_FILE));
+            config.setProperty(key, value);
         } else {
             try {
-                String encryptPassword = CryptoUtils.encrypt(password, new File(ConfigKeys.SECRET_FILE));
+                String encryptPassword = CryptoUtils.encrypt(value, new File(ConfigKeys.SECRET_FILE));
                 List<String> lines = Files.readAllLines(Paths.get(configFilePath), StandardCharsets.UTF_8);
                 for (int i = 0; i < lines.size(); i++) {
                     String s = lines.get(i);
-                    if (s.trim().matches(Config.ConfigKeys.PASSWORD + "\\s+\\=.*")) {
+                    if (s.trim().matches(key + "\\s*\\=.*")) {
                         s = s.replaceAll("(.*)\\=(.*)", "$1={aes}" + encryptPassword);
                         lines.set(i, s);
                     }
