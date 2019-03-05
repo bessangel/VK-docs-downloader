@@ -1,3 +1,12 @@
+# ignore build folder
+target/
+
+# ignore Idea IDE configuration
+.idea/
+
+# ignore secret.key file
+secret.key
+
 # Compiled class file
 *.class
 
