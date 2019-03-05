@@ -4,8 +4,10 @@ target/
 # ignore Idea IDE configuration
 .idea/
 
-# ignore secret.key file
+# ignore private configurations files
 secret.key
+config.properties
+
 
 # Compiled class file
 *.class
