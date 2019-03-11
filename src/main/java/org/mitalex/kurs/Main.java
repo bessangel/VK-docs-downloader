@@ -44,8 +44,7 @@ public class Main {
         driver.get(config.get(Config.ConfigKeys.URL));
 
 
-        String loginPageTitle = config.get(Config.ConfigKeys.LOGIN_PAGE_TITLE);
-        if ( !"".equals(loginPageTitle) && driver.getTitle().toLowerCase().startsWith(loginPageTitle)) {
+        if ( ((FirefoxDriver) driver).findElementById("login_form_wrap") != null ) {
             // Find the text input element by its name
             String login = config.get(Config.ConfigKeys.LOGIN);
             String password = config.get(Config.ConfigKeys.PASSWORD);
@@ -89,7 +88,7 @@ public class Main {
 
         LOG.info("Page title is: " + driver.getTitle());
 
-         driver.quit();
+//         driver.quit();
     }
 
     private static void downloadUrlWithCookie(WebDriver driver, String url, String filename, String downloadDir) {
